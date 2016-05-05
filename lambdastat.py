@@ -6,18 +6,29 @@ import os
 import socket
 import ssl
 from time import sleep
+import json
 
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
-#probe path to temperature reading
 device_file = '/sys/bus/w1/devices/28-000006c61575/w1_slave'
 
+awshost = "A2D7TEORP15MVV.iot.us-east-1.amazonaws.com"
+awsport = 8883
+clientId = "shadow"
+thingName = "Pi"
+iot_topic = "$aws/things/Pi/shadow/update"
+caPath = "/usr/iot/certs/VeriSign-Class 3-Public-Primary-Certification-Authority-G5.pem"
+certPath = "/usr/iot/certs/0e62a26568-certificate.pem.crt"
+keyPath = "/usr/iot/certs/0e62a26568-private.pem.key"
+
+def getTime():
+        currenttime=time.localtime()
+        return (time.strftime("%Y%m %H%M%S", currenttime))
 def read_temp_raw():
 	f = open(device_file,'r')
 	lines = f.readlines()
 	f.close()
 	return lines
-#this converts from c to f and divides the value by 1000
 def read_temp():
 	lines = read_temp_raw()
 	while lines[0].strip()[-3:] != 'YES':
@@ -39,7 +50,7 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
-
+    print(iot_topic +str(msg.payload))
 #def on_log(client, userdata, level, buf):
 #    print(msg.topic+" "+str(msg.payload))
 
@@ -48,14 +59,6 @@ mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 #mqttc.on_log = on_log
 
-awshost = "youriotendpoint.iot.us-east-1.amazonaws.com"
-awsport = 8883
-clientId = "your iot thing name"
-thingName = "your iot thing name"
-caPath = "path to /VeriSign-Class 3-Public-Primary-Certification-Authority-G5.pem"
-certPath = "path to your certificate.pem.crt"
-keyPath = "path to your private.pem.key"
-
 mqttc.tls_set(caPath, certfile=certPath, keyfile=keyPath, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2, ciphers=None)
 
 mqttc.connect(awshost, awsport, keepalive=60)
@@ -63,10 +66,21 @@ mqttc.connect(awshost, awsport, keepalive=60)
 mqttc.loop_start()
 
 while 1==1:
-    sleep(60)
+    #sleep(5)
     if connflag == True:
+        now = getTime()
         realtemp01 = (read_temp())
-        mqttc.publish("Outside Temperature", realtemp01, qos=1)
-        print("Outside Temperature " + "%.2f" % realtemp01 )
+        #realtemp01 = int(realtemp01)
+        payload = json.dumps({
+        "state": {
+              "reported": {
+                      "Temperature": realtemp01
+        }
+    }
+})
+        mqttc.publish(iot_topic , payload, qos=1)
+        print("Current Temperature ", realtemp01)
+        sleep(60)
     else:
         print("waiting for connection...")
+        sleep(1)
