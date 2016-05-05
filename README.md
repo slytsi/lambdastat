@@ -1,5 +1,5 @@
 # lambdastat
-These are python programs that will allow you to poll temperature sensor data from a digital probe from a raspberry pi and send IR commands via AWS lambda to turn on an airconderer. The raspberrypi code is written for python 3.5.1 as it supports TLS v1.2 which is required by AWS IoT service. It will utilize the AWS IoT service to send temperature reading to the AWS IoT service. 
+These are python programs that will allow you to poll temperature sensor data from a digital probe from a raspberry pi and send IR commands via AWS lambda to turn on an airconderer. The raspberrypi code is written for python 3.5.1 as it supports TLS v1.2 which is required by AWS IoT service. It also requires paho mqtt client.It will utilize the AWS IoT service to send temperature reading to the AWS IoT service. 
 This file is called lambdastat.py and utilizes a DS18B20 digital temperature gauge connected to a raspberry pi 2.
 By default it will poll once a minute which roughly equates to a a $.21 AWS IoT bill per month in US-East-1 region.
 
