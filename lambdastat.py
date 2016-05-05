@@ -12,14 +12,14 @@ os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 device_file = '/sys/bus/w1/devices/28-000006c61575/w1_slave'
 
-awshost = "A2D7TEORP15MVV.iot.us-east-1.amazonaws.com"
+awshost = "host.iot.us-east-1.amazonaws.com"
 awsport = 8883
 clientId = "shadow"
 thingName = "Pi"
 iot_topic = "$aws/things/Pi/shadow/update"
-caPath = "/usr/iot/certs/VeriSign-Class 3-Public-Primary-Certification-Authority-G5.pem"
-certPath = "/usr/iot/certs/0e62a26568-certificate.pem.crt"
-keyPath = "/usr/iot/certs/0e62a26568-private.pem.key"
+caPath = "yourcertpath/VeriSign-Class 3-Public-Primary-Certification-Authority-G5.pem"
+certPath = "yourcertpath/certificate.pem.crt"
+keyPath = "yourcertpaths/private.pem.key"
 
 def getTime():
         currenttime=time.localtime()
